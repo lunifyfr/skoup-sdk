@@ -13,11 +13,12 @@
     "release": "bun scripts/release.ts"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4",
-    "jsdom": "^26.1.0"
+    "vitest": "^3.2.4"
   },
   "prettier": {
     "semi": false,
