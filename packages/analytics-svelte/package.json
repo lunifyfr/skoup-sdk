@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-svelte",
   "version": "0.1.0",
-  "description": "Skoup Analytics for Svelte and SvelteKit \u2014 one call, page views on navigation.",
+  "description": "Skoup Analytics for Svelte and SvelteKit — one call, page views on navigation.",
   "license": "MIT",
   "repository": {
     "type": "git",

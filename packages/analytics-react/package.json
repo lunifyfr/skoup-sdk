@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-react",
   "version": "0.1.0",
-  "description": "Skoup Analytics for React \u2014 provider, hook and route-change page views.",
+  "description": "Skoup Analytics for React — provider, hook and route-change page views.",
   "license": "MIT",
   "repository": {
     "type": "git",

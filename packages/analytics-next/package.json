@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-next",
   "version": "0.1.0",
-  "description": "Skoup Analytics for Next.js (App Router) \u2014 one client component, page views on navigation.",
+  "description": "Skoup Analytics for Next.js (App Router) — one client component, page views on navigation.",
   "license": "MIT",
   "repository": {
     "type": "git",

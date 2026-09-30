@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-nuxt",
   "version": "0.1.0",
-  "description": "Skoup Analytics for Nuxt 3 \u2014 a module: page views on navigation, useSkoup() everywhere.",
+  "description": "Skoup Analytics for Nuxt 3 — a module: page views on navigation, useSkoup() everywhere.",
   "license": "MIT",
   "repository": {
     "type": "git",
