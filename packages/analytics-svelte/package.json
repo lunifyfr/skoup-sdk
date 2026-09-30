@@ -1,0 +1,48 @@
+{
+  "name": "@skoup/analytics-svelte",
+  "version": "0.1.0",
+  "description": "Skoup Analytics for Svelte and SvelteKit — one call, page views on navigation.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lunifyfr/skoup-sdk",
+    "directory": "packages/analytics-svelte"
+  },
+  "homepage": "https://docs.skoup.ai/en/guides/tracking",
+  "keywords": [
+    "skoup",
+    "analytics",
+    "ai",
+    "attribution",
+    "svelte"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean --target es2020 --external svelte,svelte/store",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@skoup/analytics": "workspace:^"
+  },
+  "peerDependencies": {
+    "svelte": ">=4"
+  },
+  "devDependencies": {
+    "svelte": "^5.38.0"
+  }
+}

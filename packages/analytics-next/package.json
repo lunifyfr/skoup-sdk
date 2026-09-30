@@ -1,0 +1,52 @@
+{
+  "name": "@skoup/analytics-next",
+  "version": "0.1.0",
+  "description": "Skoup Analytics for Next.js (App Router) \u2014 one client component, page views on navigation.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lunifyfr/skoup-sdk",
+    "directory": "packages/analytics-next"
+  },
+  "homepage": "https://docs.skoup.ai/en/guides/tracking",
+  "keywords": [
+    "skoup",
+    "analytics",
+    "ai",
+    "attribution",
+    "next"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.tsx --format esm,cjs --dts --sourcemap --clean --target es2020 --external react,next,next/navigation,@skoup/analytics-react",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@skoup/analytics": "workspace:^",
+    "@skoup/analytics-react": "workspace:^"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.9",
+    "next": "^15.5.2",
+    "react": "^19.1.1"
+  }
+}

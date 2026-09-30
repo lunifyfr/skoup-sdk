@@ -1,0 +1,50 @@
+{
+  "name": "@skoup/analytics-vue",
+  "version": "0.1.0",
+  "description": "Skoup Analytics for Vue 3 — plugin, composable, page views on router navigation.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lunifyfr/skoup-sdk",
+    "directory": "packages/analytics-vue"
+  },
+  "homepage": "https://docs.skoup.ai/en/guides/tracking",
+  "keywords": [
+    "skoup",
+    "analytics",
+    "ai",
+    "attribution",
+    "vue"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean --target es2020 --external vue,vue-router",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@skoup/analytics": "workspace:^"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3",
+    "vue-router": ">=4"
+  },
+  "devDependencies": {
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  }
+}

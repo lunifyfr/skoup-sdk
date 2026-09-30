@@ -1,0 +1,49 @@
+{
+  "name": "@skoup/analytics-react",
+  "version": "0.1.0",
+  "description": "Skoup Analytics for React \u2014 provider, hook and route-change page views.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lunifyfr/skoup-sdk",
+    "directory": "packages/analytics-react"
+  },
+  "homepage": "https://docs.skoup.ai/en/guides/tracking",
+  "keywords": [
+    "skoup",
+    "analytics",
+    "ai",
+    "attribution",
+    "react"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.tsx --format esm,cjs --dts --sourcemap --clean --target es2020 --external react",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@skoup/analytics": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.9",
+    "react": "^19.1.1"
+  }
+}

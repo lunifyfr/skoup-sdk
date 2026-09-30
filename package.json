@@ -1,0 +1,24 @@
+{
+  "name": "skoup-sdk",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '@skoup/analytics' build && bun run --filter '@skoup/analytics-react' build && bun run --filter '@skoup/analytics-vue' build && bun run --filter '@skoup/analytics-next' build && bun run --filter '@skoup/analytics-nuxt' build && bun run --filter '@skoup/analytics-svelte' build",
+    "test": "bun run --filter '@skoup/analytics' test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100
+  }
+}

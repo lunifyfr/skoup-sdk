@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@skoup/analytics": ["packages/analytics/src/index.ts"],
+      "@skoup/analytics-react": ["packages/analytics-react/src/index.tsx"],
+      "@skoup/analytics-vue": ["packages/analytics-vue/src/index.ts"]
+    }
+  }
+}
