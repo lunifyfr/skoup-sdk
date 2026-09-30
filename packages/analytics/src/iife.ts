@@ -35,8 +35,11 @@ declare global {
   const endpoint = script?.getAttribute('data-endpoint') ?? w.__SKOUP_ENDPOINT__ ?? undefined
   const consent = (script?.getAttribute('data-consent') as ConsentState | null) ?? 'granted'
   const debug = Boolean(script?.getAttribute('data-debug'))
+  const cookieDomain = script?.getAttribute('data-cookie-domain') ?? undefined
 
-  const instance = site ? createSkoup({ site, endpoint, consent, debug }, w) : noopSkoup()
+  const instance = site
+    ? createSkoup({ site, endpoint, consent, debug, cookieDomain }, w)
+    : noopSkoup()
 
   const pending = w.skoup?.q ?? []
   const skoup = ((...args: Command): void => {

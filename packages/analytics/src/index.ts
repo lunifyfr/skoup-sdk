@@ -9,9 +9,12 @@
  * but `utm_*` / `ref`, the URL fragment, screen or language — and the
  * collector turns the IP into a country and forgets it.
  *
- * The visitor id lives in the first-party cookie `skp_vid` (13 months).
- * Load the script after your visitors' consent, or pass `consent: 'wait'`
- * and call `consent('granted')` when they accept.
+ * The visitor id lives in the first-party cookie `skp_vid` (13 months),
+ * set on the site's registrable domain (`nordvelo.fr` for `www.` and
+ * `app.` alike — probed, or `cookieDomain`) so one visitor stays one
+ * across the brand's subdomains. Load the script after your visitors'
+ * consent, or pass `consent: 'wait'` and call `consent('granted')` when
+ * they accept.
  */
 
 export type ConsentState = 'granted' | 'wait' | 'denied'
@@ -29,6 +32,12 @@ export interface SkoupOptions {
   autoPageview?: boolean
   /** Patch `history.pushState` / `popstate` to report route changes (default true). */
   trackHistory?: boolean
+  /**
+   * Domain of the visitor cookie, so the brand's subdomains share it
+   * (`nordvelo.fr`). Default: the shortest suffix of the host the browser
+   * accepts a cookie for — its registrable domain.
+   */
+  cookieDomain?: string
 }
 
 export interface EventExtra {
@@ -121,12 +130,35 @@ function readCookie(doc: Document): string | null {
   return match ? match[1] : null
 }
 
-function writeCookie(doc: Document, id: string, secure: boolean): void {
-  doc.cookie = `${COOKIE}=${id}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax${secure ? '; Secure' : ''}`
+function writeCookie(doc: Document, id: string, secure: boolean, domain: string | null): void {
+  doc.cookie = `${COOKIE}=${id}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax${secure ? '; Secure' : ''}${domain ? '; Domain=' + domain : ''}`
 }
 
-function dropCookie(doc: Document): void {
+function dropCookie(doc: Document, domain: string | null): void {
+  doc.cookie = `${COOKIE}=; Max-Age=0; Path=/; SameSite=Lax${domain ? '; Domain=' + domain : ''}`
   doc.cookie = `${COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`
+}
+
+/**
+ * The registrable domain of the page (`nordvelo.fr` for `app.nordvelo.fr`,
+ * `example.co.uk` for `shop.example.co.uk`): the shortest suffix the
+ * browser accepts a cookie for — it refuses a public suffix. Null for an
+ * IP address or a single-label host (a host-only cookie then).
+ */
+export function probeCookieDomain(doc: Document, hostname: string): string | null {
+  if (/^[\d.]+$/.test(hostname) || hostname.includes(':')) return null
+  const labels = hostname.split('.')
+  if (labels.length < 2) return null
+  const probe = 'skp_probe'
+  for (let i = labels.length - 2; i >= 0; i--) {
+    const domain = labels.slice(i).join('.')
+    doc.cookie = `${probe}=1; Path=/; SameSite=Lax; Domain=${domain}`
+    if (doc.cookie.includes(`${probe}=1`)) {
+      doc.cookie = `${probe}=; Max-Age=0; Path=/; Domain=${domain}`
+      return domain
+    }
+  }
+  return null
 }
 
 /** A no-op instance: no site key, an automated browser, localhost without `debug`. */
@@ -156,6 +188,7 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
   if (!site || (!options.debug && (automated || local))) return noopSkoup()
 
   let consent: ConsentState = options.consent ?? 'granted'
+  const domain = options.cookieDomain ?? probeCookieDomain(d, w.location.hostname)
   let visitor: string | null = null
   let attribution: Attribution | null = null
   let queue: Hit[] = []
@@ -164,7 +197,7 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
   const visitorId = (): string => {
     if (visitor) return visitor
     visitor = readCookie(d) ?? randomVisitorId()
-    if (consent === 'granted') writeCookie(d, visitor, w.location.protocol === 'https:')
+    if (consent === 'granted') writeCookie(d, visitor, w.location.protocol === 'https:', domain)
     return visitor
   }
 
@@ -172,7 +205,13 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
     timer = null
     if (!queue.length) return
     const events = queue.splice(0, MAX_EVENTS_PER_HIT)
-    const body = JSON.stringify({ s: site, v: visitorId(), e: events })
+    // `d`: the cookie domain the browser accepted — the collector sets the same
+    // cookie in its response when the hit comes through a first-party proxy.
+    const body = JSON.stringify(
+      domain
+        ? { s: site, v: visitorId(), d: domain, e: events }
+        : { s: site, v: visitorId(), e: events },
+    )
     let sent = false
     if (w.navigator.sendBeacon) {
       try {
@@ -245,8 +284,8 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
 
   const setConsent = (state: ConsentState): void => {
     consent = state
-    if (state === 'granted') writeCookie(d, visitorId(), w.location.protocol === 'https:')
-    if (state === 'denied') dropCookie(d)
+    if (state === 'granted') writeCookie(d, visitorId(), w.location.protocol === 'https:', domain)
+    if (state === 'denied') dropCookie(d, domain)
   }
 
   // Single-page apps: a route change is a page.

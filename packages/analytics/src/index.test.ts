@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { COOKIE, cleanReferrer, cleanUrl, createSkoup } from './index'
+import { COOKIE, cleanReferrer, cleanUrl, createSkoup, probeCookieDomain } from './index'
 
-type Sent = { s: string; v: string; e: Array<Record<string, unknown>> }
+type Sent = { s: string; v: string; d?: string; e: Array<Record<string, unknown>> }
 
 /** The hits sent through fetch (no sendBeacon in jsdom: the fallback carries a string body). */
 function sentHits(sender: ReturnType<typeof vi.fn>): Sent[] {
@@ -25,6 +25,15 @@ describe('cleanReferrer', () => {
       'android-app://com.openai.chatgpt/',
     )
     expect(cleanReferrer('')).toBeNull()
+  })
+})
+
+describe('probeCookieDomain', () => {
+  it('finds the registrable domain the browser accepts a cookie for', () => {
+    expect(probeCookieDomain(document, 'nordvelo.fr')).toBe('nordvelo.fr')
+    expect(probeCookieDomain(document, '127.0.0.1')).toBeNull()
+    expect(probeCookieDomain(document, 'localhost')).toBeNull()
+    expect(document.cookie).not.toContain('skp_probe')
   })
 })
 
@@ -63,6 +72,8 @@ describe('createSkoup', () => {
     expect(hit.e[1]).toMatchObject({ t: 'event', n: 'signup', p: { plan: 'growth' } })
     expect(JSON.stringify(hit)).not.toContain('secret')
     expect(document.cookie).toContain(`${COOKIE}=${hit.v}`)
+    // Set on the registrable domain: the brand's subdomains share the visitor.
+    expect(hit.d).toBe('nordvelo.fr')
     expect(skoup.attribution()).toMatchObject({ visitor_id: hit.v, utm_source: 'chatgpt.com' })
     skoup.destroy()
   })
