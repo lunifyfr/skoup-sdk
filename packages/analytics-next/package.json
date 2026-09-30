@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-next",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skoup Analytics for Next.js (App Router) — one client component, page views on navigation.",
   "license": "MIT",
   "repository": {
@@ -38,8 +38,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^0.2.0",
-    "@skoup/analytics-react": "^0.2.0"
+    "@skoup/analytics": "^0.3.0",
+    "@skoup/analytics-react": "^0.3.0"
   },
   "peerDependencies": {
     "next": ">=14",

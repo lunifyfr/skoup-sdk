@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skoup Analytics for React — provider, hook and route-change page views.",
   "license": "MIT",
   "repository": {
@@ -38,7 +38,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^0.2.0"
+    "@skoup/analytics": "^0.3.0"
   },
   "peerDependencies": {
     "react": ">=18"

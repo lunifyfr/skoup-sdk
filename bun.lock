@@ -15,7 +15,7 @@
     },
     "packages/analytics": {
       "name": "@skoup/analytics",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "devDependencies": {
         "jsdom": "^26.1.0",
         "vitest": "^3.2.4",
@@ -23,10 +23,10 @@
     },
     "packages/analytics-next": {
       "name": "@skoup/analytics-next",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "dependencies": {
-        "@skoup/analytics": "^0.1.0",
-        "@skoup/analytics-react": "^0.1.0",
+        "@skoup/analytics": "^0.3.0",
+        "@skoup/analytics-react": "^0.3.0",
       },
       "devDependencies": {
         "@testing-library/react": "^16.3.0",
@@ -44,11 +44,11 @@
     },
     "packages/analytics-nuxt": {
       "name": "@skoup/analytics-nuxt",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "dependencies": {
         "@nuxt/kit": "^3.18.1",
-        "@skoup/analytics": "^0.1.0",
-        "@skoup/analytics-vue": "^0.1.0",
+        "@skoup/analytics": "^0.3.0",
+        "@skoup/analytics-vue": "^0.3.0",
       },
       "devDependencies": {
         "@nuxt/kit": "^3.18.1",
@@ -64,9 +64,9 @@
     },
     "packages/analytics-react": {
       "name": "@skoup/analytics-react",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "dependencies": {
-        "@skoup/analytics": "^0.1.0",
+        "@skoup/analytics": "^0.3.0",
       },
       "devDependencies": {
         "@testing-library/react": "^16.3.0",
@@ -82,9 +82,9 @@
     },
     "packages/analytics-svelte": {
       "name": "@skoup/analytics-svelte",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "dependencies": {
-        "@skoup/analytics": "^0.1.0",
+        "@skoup/analytics": "^0.3.0",
       },
       "devDependencies": {
         "jsdom": "^26.1.0",
@@ -97,9 +97,9 @@
     },
     "packages/analytics-vue": {
       "name": "@skoup/analytics-vue",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "dependencies": {
-        "@skoup/analytics": "^0.1.0",
+        "@skoup/analytics": "^0.3.0",
       },
       "devDependencies": {
         "@vue/test-utils": "^2.4.6",
