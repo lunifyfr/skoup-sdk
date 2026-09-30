@@ -159,7 +159,7 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
   let visitor: string | null = null
   let attribution: Attribution | null = null
   let queue: Hit[] = []
-  let timer: ReturnType<typeof setTimeout> | null = null
+  let timer: number | null = null
 
   const visitorId = (): string => {
     if (visitor) return visitor
