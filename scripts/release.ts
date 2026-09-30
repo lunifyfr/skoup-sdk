@@ -37,7 +37,10 @@ await $`bun run lint`
 await $`bun run typecheck`
 await $`bun run test`
 await $`git add -A`
-await $`git commit -m ${`chore: release v${version}`}`
+// Nothing to commit when the versions were already there (a re-run): the tag alone.
+if ((await $`git status --porcelain`.text()).trim() !== '') {
+  await $`git commit -m ${`chore: release v${version}`}`
+}
 await $`git tag -a ${`v${version}`} -m ${`v${version}`}`
 await $`git push origin main --follow-tags`
 
