@@ -37,7 +37,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@skoup/analytics": "workspace:^"
+    "@skoup/analytics": "^0.1.0"
   },
   "peerDependencies": {
     "vue": ">=3.3",

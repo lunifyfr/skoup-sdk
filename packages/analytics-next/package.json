@@ -37,8 +37,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@skoup/analytics": "workspace:^",
-    "@skoup/analytics-react": "workspace:^"
+    "@skoup/analytics": "^0.1.0",
+    "@skoup/analytics-react": "^0.1.0"
   },
   "peerDependencies": {
     "next": ">=14",

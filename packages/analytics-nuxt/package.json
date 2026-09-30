@@ -38,8 +38,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@skoup/analytics": "workspace:^",
-    "@skoup/analytics-vue": "workspace:^",
+    "@skoup/analytics": "^0.1.0",
+    "@skoup/analytics-vue": "^0.1.0",
     "@nuxt/kit": "^3.18.1"
   },
   "peerDependencies": {
