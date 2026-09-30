@@ -10,6 +10,8 @@ Full guide: [docs.skoup.ai/en/guides/tracking](https://docs.skoup.ai/en/guides/t
 <script defer src="https://app.skoup.ai/t.js" data-site="site_…"></script>
 ```
 
+Served through your own domain (`<script defer src="https://brand.com/_skoup/t.js" …>`, a reverse proxy to `app.skoup.ai/t.js`), the hits go to `https://brand.com/_skoup/t` on their own — see the [first-party proxy](https://docs.skoup.ai/en/guides/tracking#first-party-proxy) guide.
+
 ## As a module
 
 ```ts

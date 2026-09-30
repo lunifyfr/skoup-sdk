@@ -57,3 +57,16 @@ describe('the tag', () => {
     expect(window.skoup?.attribution()).toBeNull()
   })
 })
+
+describe('proxiedEndpoint', () => {
+  it('derives the collector from the tag served through a first-party proxy', async () => {
+    const { proxiedEndpoint } = await import('./iife')
+    expect(proxiedEndpoint('https://www.nordvelo.fr/_skoup/t.js', ['app.skoup.ai'])).toBe(
+      'https://www.nordvelo.fr/_skoup/t',
+    )
+    // Served by Skoup itself: the baked collector.
+    expect(proxiedEndpoint('https://app.skoup.ai/t.js', ['app.skoup.ai'])).toBeUndefined()
+    expect(proxiedEndpoint('https://cdn.example/skoup.iife.js', ['app.skoup.ai'])).toBeUndefined()
+    expect(proxiedEndpoint(null, ['app.skoup.ai'])).toBeUndefined()
+  })
+})
