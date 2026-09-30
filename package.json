@@ -9,7 +9,8 @@
     "test": "bun run --filter '*' test",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "release": "bun scripts/release.ts"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

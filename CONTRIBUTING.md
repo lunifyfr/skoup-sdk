@@ -10,6 +10,6 @@ bun run build
 bun run format
 ```
 
-- One version for every package (`package.json`); a `v*` tag publishes them all.
+- One version for every package; `bun run release <x.y.z>` tags it, the tag publishes them all.
 - A wrapper stays thin: the behaviour lives in `@skoup/analytics`, the wrapper only plugs the framework's lifecycle and router into it.
 - Conventional commits (`feat:`, `fix:`, `docs:`, `chore:`).

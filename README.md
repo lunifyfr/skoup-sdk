@@ -20,6 +20,6 @@ bun run typecheck
 bun run build
 ```
 
-A `v*` tag publishes every package to npm at the version of its `package.json` (`NPM_TOKEN` secret). All packages share one version.
+`bun run release 0.2.0` aligns every package on the version, commits, tags `v0.2.0` and pushes; the tag makes the CI publish the six packages to npm (secret `NPM_TOKEN`, a granular access token of the `skoup` org allowed to bypass 2FA) and open the GitHub release. All packages share one version.
 
 MIT © Lunify SAS
