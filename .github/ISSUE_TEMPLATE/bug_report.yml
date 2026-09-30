@@ -39,5 +39,5 @@ body:
     attributes:
       label: Checks
       options:
-        - label: The tag or the provider is loaded once, after the visitors' consent (or with `consent: 'wait'`).
+        - label: "The tag or the provider is loaded once, after the visitors' consent (or with consent: 'wait')."
         - label: The site key belongs to the brand and the page's host is one of its allowed hosts.

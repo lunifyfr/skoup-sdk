@@ -7,7 +7,12 @@ import { createSkoup, noopSkoup, type ConsentState, type Skoup } from './index'
  * Calls queued before the load (`window.skoup.q`) are replayed.
  */
 type Command =
-  | ['event', string, Record<string, string | number | boolean>?, Parameters<Skoup['event']>[2]?]
+  | [
+      'event',
+      string,
+      (Record<string, string | number | boolean> | null)?,
+      Parameters<Skoup['event']>[2]?,
+    ]
   | ['pageview']
   | ['consent', ConsentState]
 type Global = ((...args: Command) => void) & {
