@@ -1,0 +1,16 @@
+name: Feature request
+description: A framework, a platform or an API you need — Astro, Remix, WordPress, a server-side SDK…
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you need
+      description: The stack you are on and what you cannot do today with the packages that exist.
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: How it could look
+      description: An API you would expect, a package you would import, an example from another analytics tool.

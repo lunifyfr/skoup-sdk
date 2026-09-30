@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "build": "bun run --filter '@skoup/analytics' build && bun run --filter '@skoup/analytics-react' build && bun run --filter '@skoup/analytics-vue' build && bun run --filter '@skoup/analytics-next' build && bun run --filter '@skoup/analytics-nuxt' build && bun run --filter '@skoup/analytics-svelte' build",
-    "test": "bun run --filter '@skoup/analytics' test",
+    "test": "bun run --filter '*' test",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "prettier --check .",
     "format": "prettier --write ."
@@ -14,7 +14,9 @@
   "devDependencies": {
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "jsdom": "^26.1.0"
   },
   "prettier": {
     "semi": false,

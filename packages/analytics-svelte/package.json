@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-svelte",
   "version": "0.1.0",
-  "description": "Skoup Analytics for Svelte and SvelteKit — one call, page views on navigation.",
+  "description": "Skoup Analytics for Svelte and SvelteKit \u2014 one call, page views on navigation.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean --target es2020 --external svelte,svelte/store",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@skoup/analytics": "^0.1.0"
@@ -43,6 +44,8 @@
     "svelte": ">=4"
   },
   "devDependencies": {
-    "svelte": "^5.38.0"
+    "svelte": "^5.38.0",
+    "vitest": "^3.2.4",
+    "jsdom": "^26.1.0"
   }
 }

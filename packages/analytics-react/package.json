@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts --sourcemap --clean --target es2020 --external react",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@skoup/analytics": "^0.1.0"
@@ -44,6 +45,10 @@
   },
   "devDependencies": {
     "@types/react": "^19.1.9",
-    "react": "^19.1.1"
+    "react": "^19.1.1",
+    "vitest": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "@testing-library/react": "^16.3.0",
+    "react-dom": "^19.1.1"
   }
 }

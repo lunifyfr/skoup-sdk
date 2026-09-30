@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Skoup support
+    url: mailto:hello@skoup.ai
+    about: Questions about your Skoup account, your site key or the data you see in Revenue › AI traffic.
+  - name: Documentation
+    url: https://docs.skoup.ai/en/guides/tracking
+    about: How to install Skoup Analytics, what it measures, consent, events, Stripe attribution.

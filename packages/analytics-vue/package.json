@@ -1,7 +1,7 @@
 {
   "name": "@skoup/analytics-vue",
   "version": "0.1.0",
-  "description": "Skoup Analytics for Vue 3 — plugin, composable, page views on router navigation.",
+  "description": "Skoup Analytics for Vue 3 \u2014 plugin, composable, page views on router navigation.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean --target es2020 --external vue,vue-router",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@skoup/analytics": "^0.1.0"
@@ -45,6 +46,9 @@
   },
   "devDependencies": {
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vitest": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "@vue/test-utils": "^2.4.6"
   }
 }
