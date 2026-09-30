@@ -34,11 +34,11 @@ Framework wrappers: [`@skoup/analytics-react`](https://www.npmjs.com/package/@sk
 
 ## What is measured
 
-| Sent                                                    | Never sent                                                       |
-| ------------------------------------------------------- | ---------------------------------------------------------------- |
-| Page views: host, path, `utm_*` and `ref`               | Page title, form contents, other query parameters, fragment      |
-| Referrer without its parameters                         | Screen, language, browser, OS                                    |
-| Named events and their scalar properties                | The IP is turned into a country by the collector, then forgotten |
-| A random visitor id in the `skp_vid` cookie (13 months) | Any identity data                                                |
+| Sent                                                                                                                      | Never sent                                                       |
+| ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Page views: host, path, `utm_*` and `ref`                                                                                 | Page title, form contents, other query parameters, fragment      |
+| Referrer without its parameters                                                                                           | Screen, language, browser, OS                                    |
+| Named events and their scalar properties                                                                                  | The IP is turned into a country by the collector, then forgotten |
+| A random visitor id in the `skp_vid` cookie (13 months, on the registrable domain so `www.`, `shop.` and `app.` share it) | Any identity data                                                |
 
 The cookie needs your visitors' consent where the law requires it: load after consent, or `consent: 'wait'` then `consent('granted')`.
