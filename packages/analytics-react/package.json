@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lunifyfr/skoup-sdk",
+    "url": "git+https://github.com/lunifyfr/skoup-sdk.git",
     "directory": "packages/analytics-react"
   },
   "homepage": "https://docs.skoup.ai/en/guides/tracking",
