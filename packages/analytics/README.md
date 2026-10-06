@@ -12,6 +12,10 @@ Full guide: [docs.skoup.ai/en/guides/tracking](https://docs.skoup.ai/en/guides/t
 
 Served through your own domain (`<script defer src="https://brand.com/_skoup/t.js" …>`, a reverse proxy to `app.skoup.ai/t.js`), the hits go to `https://brand.com/_skoup/t` on their own — see the [first-party proxy](https://docs.skoup.ai/en/guides/tracking#first-party-proxy) guide.
 
+## WooCommerce
+
+On the "Order received" page, the tag sends the order's `purchase` on its own (`order_id` = the WooCommerce order id), once per order and per tab. The id comes from the tag's `data-skoup-order` attribute, set by the Skoup for WooCommerce plugin, otherwise from the thank-you URL: `/checkout/order-received/{id}/?key=wc_order_…`, or `?order-received={id}&key=wc_order_…` with plain permalinks. Nothing to add to your theme.
+
 ## As a module
 
 ```ts

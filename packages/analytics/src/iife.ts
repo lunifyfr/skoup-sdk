@@ -1,4 +1,5 @@
 import { createSkoup, noopSkoup, type ConsentState, type Skoup } from './index'
+import { trackWooCommercePurchase } from './woocommerce'
 
 /**
  * The browser build: `<script defer src="…/skoup.iife.js" data-site="site_…"></script>`.
@@ -10,6 +11,10 @@ import { createSkoup, noopSkoup, type ConsentState, type Skoup } from './index'
  * the hits go to the same path with `t` in place of `t.js`
  * (`https://brand.com/_skoup/t`): nothing to declare, like Sentry's
  * tunnel. `data-endpoint` still overrides.
+ *
+ * On WooCommerce's "Order received" page, the `purchase` of the order is
+ * sent on its own (`data-skoup-order`, else the thank-you URL): see
+ * `./woocommerce`.
  */
 type Command =
   | [
@@ -79,4 +84,10 @@ export function proxiedEndpoint(
   skoup.loaded = true
   w.skoup = skoup
   for (const call of pending) skoup(...call)
+
+  trackWooCommercePurchase(
+    script?.getAttribute('data-skoup-order'),
+    (orderId) => instance.event('purchase', null, { order_id: orderId }),
+    w,
+  )
 })(window)
