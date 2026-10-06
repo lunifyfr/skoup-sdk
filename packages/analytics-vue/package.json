@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-vue",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Skoup Analytics for Vue 3 — plugin, composable, page views on router navigation.",
   "license": "MIT",
   "repository": {
@@ -38,7 +38,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^0.3.0"
+    "@skoup/analytics": "^0.4.0"
   },
   "peerDependencies": {
     "vue": ">=3.3",

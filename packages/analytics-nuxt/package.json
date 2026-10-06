@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-nuxt",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Skoup Analytics for Nuxt 3 — a module: page views on navigation, useSkoup() everywhere.",
   "license": "MIT",
   "repository": {
@@ -39,8 +39,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^0.3.0",
-    "@skoup/analytics-vue": "^0.3.0",
+    "@skoup/analytics": "^0.4.0",
+    "@skoup/analytics-vue": "^0.4.0",
     "@nuxt/kit": "^3.18.1"
   },
   "peerDependencies": {
