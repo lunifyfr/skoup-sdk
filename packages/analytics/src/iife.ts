@@ -21,6 +21,10 @@ import { trackWooCommercePurchase } from './woocommerce'
  * On WooCommerce's "Order received" page, the `purchase` of the order is
  * sent on its own (`data-skoup-order`, else the thank-you URL): see
  * `./woocommerce`.
+ *
+ * The conversions the site sends to Google Analytics 4 (`gtag`, Google Tag
+ * Manager) are counted by their name (`./conversions`); `data-gtag="off"`
+ * leaves them out.
  */
 type Command =
   | [
@@ -77,9 +81,10 @@ export function proxiedEndpoint(
     attribute === 'wait' || attribute === 'denied' || attribute === 'off' ? attribute : 'granted'
   const debug = Boolean(script?.getAttribute('data-debug'))
   const cookieDomain = script?.getAttribute('data-cookie-domain') ?? undefined
+  const captureGtag = script?.getAttribute('data-gtag') !== 'off'
 
   const instance = site
-    ? createSkoup({ site, endpoint, consent, debug, cookieDomain }, w)
+    ? createSkoup({ site, endpoint, consent, debug, cookieDomain, captureGtag }, w)
     : noopSkoup()
 
   const pending = w.skoup?.q ?? []

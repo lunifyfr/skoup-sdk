@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-next",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Skoup Analytics for Next.js (App Router) — one client component, page views on navigation.",
   "license": "MIT",
   "repository": {
@@ -26,6 +26,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./proxy": {
+      "types": "./dist/proxy.d.ts",
+      "import": "./dist/proxy.js",
+      "require": "./dist/proxy.cjs"
     }
   },
   "files": [
@@ -33,13 +38,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --sourcemap --clean --target es2020 --external react,next,next/navigation,@skoup/analytics-react",
+    "build": "tsup src/index.tsx src/proxy.ts --format esm,cjs --dts --sourcemap --clean --target es2020 --external react,next,next/navigation,next/server,@skoup/analytics,@skoup/analytics-react",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^1.0.0",
-    "@skoup/analytics-react": "^1.0.0"
+    "@skoup/analytics": "^1.1.0",
+    "@skoup/analytics-react": "^1.1.0"
   },
   "peerDependencies": {
     "next": ">=14",

@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Skoup Analytics — measures the visits AI assistants (ChatGPT, Perplexity, Gemini, Claude…) send to your site, and the conversions they bring.",
   "license": "MIT",
   "repository": {
@@ -28,6 +28,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./agents": {
+      "types": "./dist/agents.d.ts",
+      "import": "./dist/agents.js",
+      "require": "./dist/agents.cjs"
     },
     "./iife": "./dist/skoup.iife.js"
   },

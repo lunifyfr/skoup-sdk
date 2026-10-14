@@ -28,7 +28,13 @@
  * is sent any more until another state lifts it. The SDK keeps none of
  * these choices itself — the site's consent tool remembers them and calls
  * `consent()` again on every load.
+ *
+ * The conversions the site already sends to Google Analytics 4 (`gtag`,
+ * Google Tag Manager's `dataLayer`) are counted too, by their name only —
+ * see `./conversions` (`captureGtag`, on by default).
  */
+import { watchDataLayer, type DataLayerConversion } from './gtag'
+import { orderReported, rememberOrder } from './orders'
 
 /**
  * `granted`: measured with the visitor cookie. `wait` / `denied`: measured
@@ -60,6 +66,12 @@ export interface SkoupOptions {
    * accepts a cookie for — its registrable domain.
    */
   cookieDomain?: string
+  /**
+   * Count the conversions the site sends to Google Analytics 4 — `gtag('event', …)`
+   * or `dataLayer.push({ event, … })` — by their Skoup name (`GA4_CONVERSIONS`),
+   * never their parameters. Default true; `false` to send only `event()`.
+   */
+  captureGtag?: boolean
 }
 
 export interface EventExtra {
@@ -117,6 +129,13 @@ const MAX_EVENTS_PER_HIT = 25
 const BATCH_MS = 1000
 const STORAGE_KEY = 'skoup_attribution'
 const VISITOR_PATTERN = /^v1\.[0-9a-f]{32}$/
+/**
+ * Two reports of one conversion — the site's `event()` and its Google
+ * Analytics event, or gtag and Google Tag Manager both — are one when
+ * they carry the same name within this window, or the same order id
+ * (a purchase) at any time on the page.
+ */
+export const DEDUP_MS = 1000
 
 type Hit = Record<string, unknown> & { t: 'pageview' | 'event'; ts: number }
 
@@ -248,6 +267,10 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
   let attribution: Attribution | null = null
   let queue: Hit[] = []
   let timer: number | null = null
+  /** Conversions reported lately — the site's and the ones taken from Google Analytics. */
+  let recent: Array<{ name: string; order: string | null; at: number }> = []
+  /** Conversions taken from Google Analytics, held `DEDUP_MS` in case the site reports them itself. */
+  let held: Array<{ name: string; order: string | null; at: number; hit: Hit; timer: number }> = []
 
   const cookies = (): boolean => consent === 'granted'
 
@@ -324,10 +347,54 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
     if (queue.length) send()
   }
 
-  const push = (hit: Omit<Hit, 'ts'>): void => {
-    if (consent === 'off') return
-    queue.push({ ...hit, ts: Date.now() } as Hit)
+  const push = (hit: Omit<Hit, 'ts'> & { ts?: number }): Hit | null => {
+    if (consent === 'off') return null
+    const queued = { ...hit, ts: hit.ts ?? Date.now() } as Hit
+    queue.push(queued)
     if (!timer) timer = w.setTimeout(send, BATCH_MS)
+    return queued
+  }
+
+  /** The same conversion: one name, and one order id when both carry one — else within `DEDUP_MS`. */
+  const same = (
+    a: { name: string; order: string | null; at: number },
+    b: { name: string; order: string | null; at: number },
+  ): boolean =>
+    a.name === b.name &&
+    (a.order && b.order ? a.order === b.order : Math.abs(a.at - b.at) <= DEDUP_MS)
+
+  const remember = (name: string, order: string | null, at: number): void => {
+    // Kept: the orders of the page (a few), and the rest of the window.
+    recent = recent.filter((each) => each.order !== null || at - each.at <= DEDUP_MS).slice(-50)
+    recent.push({ name, order, at })
+    if (order && cookies()) rememberOrder(w, order)
+  }
+
+  /** Sends a held Google Analytics conversion now. */
+  const release = (entry: (typeof held)[number]): void => {
+    held = held.filter((each) => each !== entry)
+    w.clearTimeout(entry.timer)
+    const hit = push(entry.hit)
+    if (hit) remember(entry.name, entry.order, entry.at)
+  }
+  const releaseAll = (): void => held.slice().forEach(release)
+
+  /** A conversion read from the `dataLayer`: dropped when already reported, else held a moment. */
+  const fromDataLayer = (conversion: DataLayerConversion): void => {
+    if (consent === 'off') return
+    const at = Date.now()
+    const order = conversion.order_id ?? null
+    const entry = { name: conversion.name, order, at }
+    if (recent.some((each) => same(each, entry)) || held.some((each) => same(each, entry))) return
+    // A thank-you page reloaded: its order was reported in this tab already.
+    if (order && cookies() && orderReported(w, order)) return
+    const hit: Hit = { t: 'event', n: conversion.name, ts: at }
+    if (conversion.value !== undefined) hit.val = conversion.value
+    if (conversion.currency !== undefined) hit.cur = conversion.currency
+    if (order) hit.o = order
+    const pending = { ...entry, hit, timer: 0 }
+    pending.timer = w.setTimeout(() => release(pending), DEDUP_MS)
+    held.push(pending)
   }
 
   const pageview = (referrer?: string | null): void => {
@@ -359,7 +426,21 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
       if (typeof extra.currency === 'string') hit.cur = extra.currency
       if (typeof extra.order_id === 'string') hit.o = extra.order_id
     }
-    push(hit)
+    const at = Date.now()
+    const order = typeof hit.o === 'string' ? hit.o : null
+    const entry = { name: hit.n as string, order, at }
+    // The site reports it itself: the Google Analytics one waiting is dropped,
+    // its amount kept when the site's has none (the WooCommerce purchase).
+    for (const pending of held.filter((each) => same(each, entry))) {
+      held = held.filter((each) => each !== pending)
+      w.clearTimeout(pending.timer)
+      if (hit.val === undefined && pending.hit.val !== undefined) {
+        hit.val = pending.hit.val
+        if (pending.hit.cur !== undefined) hit.cur = pending.hit.cur
+      }
+    }
+    const queued = push(hit)
+    if (queued) remember(entry.name, order, at)
   }
 
   /** Deletes what a granted consent stored: the cookie and the attribution. */
@@ -388,6 +469,8 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
     if (state === 'off') {
       // The objection: what was not sent yet is dropped, nothing more leaves.
       queue = []
+      for (const pending of held) w.clearTimeout(pending.timer)
+      held = []
       if (timer) w.clearTimeout(timer)
       timer = null
       visitor = null
@@ -410,8 +493,12 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
     pageview(null)
   }
   const originalPushState = w.history.pushState
+  const flush = (): void => {
+    releaseAll()
+    send()
+  }
   const onHidden = (): void => {
-    if (d.visibilityState === 'hidden') send()
+    if (d.visibilityState === 'hidden') flush()
   }
 
   if (options.trackHistory !== false) {
@@ -421,30 +508,35 @@ export function createSkoup(options: SkoupOptions, w: Window = window): Skoup {
     }
     w.addEventListener('popstate', routed)
   }
-  w.addEventListener('pagehide', send)
+  w.addEventListener('pagehide', flush)
   d.addEventListener('visibilitychange', onHidden)
 
   if (cookies()) attribution = stored()
   // Refused or objected to: what an earlier consent left on the device goes.
   else if (consent === 'denied' || consent === 'off') forget()
   if (options.autoPageview !== false) pageview()
+  // After the first page view: the conversions already in the `dataLayer` follow it.
+  const unwatch = options.captureGtag !== false ? watchDataLayer(w, fromDataLayer) : () => {}
 
   return {
     pageview,
     event,
     consent: setConsent,
     attribution: () => attribution,
-    flush: send,
+    flush,
     destroy: () => {
-      send()
+      unwatch()
+      flush()
       if (options.trackHistory !== false) {
         w.history.pushState = originalPushState
         w.removeEventListener('popstate', routed)
       }
-      w.removeEventListener('pagehide', send)
+      w.removeEventListener('pagehide', flush)
       d.removeEventListener('visibilitychange', onHidden)
     },
   }
 }
 
 export { VISITOR_PATTERN }
+export { GA4_CONVERSIONS, conversionFor } from './conversions'
+export type { Ga4ConversionName, SkoupConversion } from './conversions'

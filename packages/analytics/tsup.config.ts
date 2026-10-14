@@ -2,7 +2,8 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig([
   {
-    entry: { index: 'src/index.ts' },
+    // `agents`: the server helpers (`@skoup/analytics/agents`), never in the tag.
+    entry: { index: 'src/index.ts', agents: 'src/agents.ts' },
     format: ['esm', 'cjs'],
     dts: true,
     sourcemap: true,

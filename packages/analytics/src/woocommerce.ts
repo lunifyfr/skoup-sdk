@@ -8,8 +8,9 @@
  * `?order-received={id}&key=wc_order_…` with plain permalinks.
  */
 
+import { orderReported, rememberOrder } from './orders'
+
 const ORDER_ID = /^\d{1,20}$/
-const STORAGE_PREFIX = 'skoup_wc_order_'
 
 /** The WooCommerce order id of this page, or null when it is not a valid "Order received" page. */
 export function wooCommerceOrderId(attribute: string | null | undefined, w: Window): string | null {
@@ -27,7 +28,7 @@ export function wooCommerceOrderId(attribute: string | null | undefined, w: Wind
 /**
  * Sends `purchase` with `order_id` through `send` when this page is a
  * WooCommerce "Order received" page not reported yet in this tab
- * (`sessionStorage` key `skoup_wc_order_{id}`). Without `storage` (no
+ * (`sessionStorage` key `skoup_order_{id}`, see `./orders`). Without `storage` (no
  * consent to the cookie), nothing is stored: sent on every load of the
  * page. Never throws.
  */
@@ -41,13 +42,9 @@ export function trackWooCommercePurchase(
     const id = wooCommerceOrderId(attribute, w)
     if (!id) return
     if (!storage) return send(id)
-    const key = STORAGE_PREFIX + id
-    try {
-      if (w.sessionStorage.getItem(key)) return
-      w.sessionStorage.setItem(key, '1')
-    } catch {
-      /* storage blocked: sent on every load of the page */
-    }
+    // Storage blocked: sent on every load of the page.
+    if (orderReported(w, id)) return
+    rememberOrder(w, id)
     send(id)
   } catch {
     /* never break the store's page */

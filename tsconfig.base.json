@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@skoup/analytics": ["packages/analytics/src/index.ts"],
+      "@skoup/analytics/agents": ["packages/analytics/src/agents.ts"],
       "@skoup/analytics-react": ["packages/analytics-react/src/index.tsx"],
       "@skoup/analytics-vue": ["packages/analytics-vue/src/index.ts"]
     }

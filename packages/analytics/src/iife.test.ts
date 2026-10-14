@@ -71,6 +71,33 @@ describe('the tag', () => {
     expect(document.cookie).not.toContain('skp_vid')
   })
 
+  it('counts the Google Analytics conversions, unless data-gtag="off"', async () => {
+    const layer = window as unknown as { dataLayer?: unknown[] }
+    for (const gtag of [null, 'off']) {
+      vi.resetModules()
+      delete window.skoup
+      delete layer.dataLayer
+      vi.mocked(window.fetch).mockClear()
+      const script = document.createElement('script')
+      script.setAttribute('data-site', 'site_tag')
+      script.setAttribute('data-debug', '1')
+      if (gtag) script.setAttribute('data-gtag', gtag)
+      Object.defineProperty(document, 'currentScript', { value: script, configurable: true })
+      layer.dataLayer = [{ event: 'generate_lead', email: 'jane@example.com' }]
+
+      await import('./iife')
+      vi.advanceTimersByTime(3000)
+
+      const names = vi
+        .mocked(window.fetch)
+        .mock.calls.flatMap(([, init]) => JSON.parse((init as { body: string }).body).e)
+        .map((e: { t: string; n?: string }) => e.n ?? e.t)
+      expect(names).toEqual(gtag ? ['pageview'] : ['pageview', 'lead'])
+      expect(JSON.stringify(vi.mocked(window.fetch).mock.calls)).not.toContain('jane@')
+    }
+    delete layer.dataLayer
+  })
+
   it('is inert without a site key', async () => {
     Object.defineProperty(document, 'currentScript', { value: null, configurable: true })
     await import('./iife')

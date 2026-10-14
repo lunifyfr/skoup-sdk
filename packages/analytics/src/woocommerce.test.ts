@@ -56,7 +56,7 @@ describe('the WooCommerce purchase', () => {
   it('sends an order once per tab, however often the page reloads', async () => {
     expect(await boot('/checkout/order-received/1046/?key=wc_order_abc123')).toEqual(['1046'])
     expect(await boot('/checkout/order-received/1046/?key=wc_order_abc123')).toEqual([])
-    expect(sessionStorage.getItem('skoup_wc_order_1046')).toBe('1')
+    expect(sessionStorage.getItem('skoup_order_1046')).toBe('1')
   })
 
   it('still sends when the storage is blocked', async () => {
@@ -74,6 +74,53 @@ describe('the WooCommerce purchase', () => {
 
   it('sends nothing when the visitor objects', async () => {
     expect(await boot('/merci/', '1049', 'off')).toEqual([])
+  })
+
+  describe('with the purchase also sent to Google Analytics', () => {
+    const layer = window as unknown as { dataLayer?: unknown[] }
+    const purchases = () =>
+      vi
+        .mocked(window.fetch)
+        .mock.calls.flatMap(([, init]) => JSON.parse((init as { body: string }).body).e)
+        .filter((e: { n?: string }) => e.n === 'purchase')
+
+    beforeEach(() => {
+      // GA4 on the thank-you page, pushed before the deferred tag runs.
+      delete layer.dataLayer
+      layer.dataLayer = [
+        { event: 'purchase', ecommerce: { transaction_id: '1050', value: 89, currency: 'EUR' } },
+      ]
+    })
+
+    afterEach(() => {
+      delete layer.dataLayer
+    })
+
+    it('one purchase, with the order and the amount GA4 had', async () => {
+      await boot('/checkout/order-received/1050/?key=wc_order_abc123')
+      vi.advanceTimersByTime(3000)
+      expect(purchases()).toEqual([expect.objectContaining({ o: '1050', val: 89, cur: 'EUR' })])
+    })
+
+    it('none on a reload of the page', async () => {
+      await boot('/checkout/order-received/1050/?key=wc_order_abc123')
+      delete layer.dataLayer
+      layer.dataLayer = [
+        { event: 'purchase', ecommerce: { transaction_id: '1050', value: 89, currency: 'EUR' } },
+      ]
+      await boot('/checkout/order-received/1050/?key=wc_order_abc123')
+      vi.advanceTimersByTime(3000)
+      expect(purchases()).toEqual([])
+    })
+
+    it('without the cookie: one purchase, its amount, no order', async () => {
+      await boot('/checkout/order-received/1050/?key=wc_order_abc123', undefined, 'wait')
+      vi.advanceTimersByTime(3000)
+      const sent = purchases()
+      expect(sent).toEqual([expect.objectContaining({ val: 89, cur: 'EUR' })])
+      expect(sent[0]).not.toHaveProperty('o')
+      expect(sessionStorage.length).toBe(0)
+    })
   })
 
   it('ignores an invalid id', async () => {
