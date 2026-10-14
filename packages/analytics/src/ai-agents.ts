@@ -16,20 +16,33 @@ export interface AiAgent {
 }
 
 export const AI_AGENTS: readonly AiAgent[] = [
+  // Read to answer a person's question, at that moment.
   { token: 'ChatGPT-User', operator: 'OpenAI', kind: 'user' },
-  { token: 'OAI-SearchBot', operator: 'OpenAI', kind: 'search' },
-  { token: 'GPTBot', operator: 'OpenAI', kind: 'training' },
   { token: 'Perplexity-User', operator: 'Perplexity', kind: 'user' },
-  { token: 'PerplexityBot', operator: 'Perplexity', kind: 'search' },
   { token: 'Claude-User', operator: 'Anthropic', kind: 'user' },
-  { token: 'Claude-SearchBot', operator: 'Anthropic', kind: 'search' },
-  { token: 'ClaudeBot', operator: 'Anthropic', kind: 'training' },
   { token: 'MistralAI-User', operator: 'Mistral AI', kind: 'user' },
+  { token: 'Google-Agent', operator: 'Google', kind: 'user' },
+  { token: 'Google-GeminiNotebook', operator: 'Google', kind: 'user' },
+  { token: 'Google-NotebookLM', operator: 'Google', kind: 'user' },
   { token: 'DuckAssistBot', operator: 'DuckDuckGo', kind: 'user' },
   { token: 'meta-externalfetcher', operator: 'Meta', kind: 'user' },
-  { token: 'meta-externalagent', operator: 'Meta', kind: 'training' },
-  { token: 'Amazonbot', operator: 'Amazon', kind: 'search' },
+  { token: 'Amzn-User', operator: 'Amazon', kind: 'user' },
+  // The assistant's search index.
+  { token: 'OAI-SearchBot', operator: 'OpenAI', kind: 'search' },
+  { token: 'PerplexityBot', operator: 'Perplexity', kind: 'search' },
+  { token: 'Claude-SearchBot', operator: 'Anthropic', kind: 'search' },
+  { token: 'MistralAI-Index', operator: 'Mistral AI', kind: 'search' },
   { token: 'Applebot', operator: 'Apple', kind: 'search' },
-  { token: 'Bytespider', operator: 'ByteDance', kind: 'training' },
+  { token: 'meta-webindexer', operator: 'Meta', kind: 'search' },
+  { token: 'Amzn-SearchBot', operator: 'Amazon', kind: 'search' },
+  { token: 'YouBot', operator: 'You.com', kind: 'search' },
+  // Training crawlers.
+  { token: 'GPTBot', operator: 'OpenAI', kind: 'training' },
+  { token: 'ClaudeBot', operator: 'Anthropic', kind: 'training' },
+  { token: 'MistralAI-Training', operator: 'Mistral AI', kind: 'training' },
+  { token: 'meta-externalagent', operator: 'Meta', kind: 'training' },
+  { token: 'Amazonbot', operator: 'Amazon', kind: 'training' },
   { token: 'CCBot', operator: 'Common Crawl', kind: 'training' },
+  { token: 'Bytespider', operator: 'ByteDance', kind: 'training' },
+  { token: 'AI2Bot', operator: 'AI2', kind: 'training' },
 ]
