@@ -59,6 +59,27 @@ describe('SkoupProvider', () => {
     expect(sent()[0].e.filter((e) => e.t === 'pageview')).toHaveLength(2)
   })
 
+  it('passes the consent through: without a cookie, then with it', () => {
+    // The cookie the providers above set.
+    document.cookie = 'skp_vid=; Max-Age=0; Path=/'
+    let skoup: ReturnType<typeof useSkoup> | null = null
+    function Grab() {
+      skoup = useSkoup()
+      return null
+    }
+    render(
+      <SkoupProvider site="site_react" debug consent="wait">
+        <Grab />
+      </SkoupProvider>,
+    )
+    act(() => vi.advanceTimersByTime(1000))
+    expect((sent()[0] as Sent & { c?: number }).c).toBe(0)
+    expect(document.cookie).not.toContain('skp_vid')
+
+    act(() => skoup!.consent('granted'))
+    expect(document.cookie).toContain('skp_vid=')
+  })
+
   it('is a no-op outside of a provider', () => {
     function Lone() {
       const skoup = useSkoup()

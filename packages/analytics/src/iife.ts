@@ -7,6 +7,12 @@ import { trackWooCommercePurchase } from './woocommerce'
  * `('pageview')`, `('consent', state)` — and `window.skoup.attribution()`.
  * Calls queued before the load (`window.skoup.q`) are replayed.
  *
+ * `data-consent="wait"` (or `"denied"`) measures without storing anything
+ * on the visitor's device until `skoup('consent', 'granted')`; without
+ * the attribute, the visitor cookie is used from the start.
+ * `data-consent="off"` / `skoup('consent', 'off')`: the visitor objects,
+ * nothing is sent.
+ *
  * Served through a first-party proxy (`https://brand.com/_skoup/t.js`),
  * the hits go to the same path with `t` in place of `t.js`
  * (`https://brand.com/_skoup/t`): nothing to declare, like Sentry's
@@ -66,7 +72,9 @@ export function proxiedEndpoint(
     proxiedEndpoint(script?.src, w.__SKOUP_SCRIPT_HOSTS__) ??
     w.__SKOUP_ENDPOINT__ ??
     undefined
-  const consent = (script?.getAttribute('data-consent') as ConsentState | null) ?? 'granted'
+  const attribute = script?.getAttribute('data-consent')
+  let consent: ConsentState =
+    attribute === 'wait' || attribute === 'denied' || attribute === 'off' ? attribute : 'granted'
   const debug = Boolean(script?.getAttribute('data-debug'))
   const cookieDomain = script?.getAttribute('data-cookie-domain') ?? undefined
 
@@ -78,7 +86,10 @@ export function proxiedEndpoint(
   const skoup = ((...args: Command): void => {
     if (args[0] === 'event') instance.event(args[1], args[2] ?? null, args[3])
     else if (args[0] === 'pageview') instance.pageview()
-    else if (args[0] === 'consent') instance.consent(args[1])
+    else if (args[0] === 'consent') {
+      consent = args[1]
+      instance.consent(args[1])
+    }
   }) as Global
   skoup.attribution = () => instance.attribution()
   skoup.loaded = true
@@ -89,5 +100,7 @@ export function proxiedEndpoint(
     script?.getAttribute('data-skoup-order'),
     (orderId) => instance.event('purchase', null, { order_id: orderId }),
     w,
+    // Without the cookie, nothing in `sessionStorage` either.
+    consent === 'granted',
   )
 })(window)

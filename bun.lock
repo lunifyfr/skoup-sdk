@@ -25,8 +25,8 @@
       "name": "@skoup/analytics-next",
       "version": "0.4.0",
       "dependencies": {
-        "@skoup/analytics": "^0.3.0",
-        "@skoup/analytics-react": "^0.3.0",
+        "@skoup/analytics": "^0.4.0",
+        "@skoup/analytics-react": "^0.4.0",
       },
       "devDependencies": {
         "@testing-library/react": "^16.3.0",
@@ -47,8 +47,8 @@
       "version": "0.4.0",
       "dependencies": {
         "@nuxt/kit": "^3.18.1",
-        "@skoup/analytics": "^0.3.0",
-        "@skoup/analytics-vue": "^0.3.0",
+        "@skoup/analytics": "^0.4.0",
+        "@skoup/analytics-vue": "^0.4.0",
       },
       "devDependencies": {
         "@nuxt/kit": "^3.18.1",
@@ -66,7 +66,7 @@
       "name": "@skoup/analytics-react",
       "version": "0.4.0",
       "dependencies": {
-        "@skoup/analytics": "^0.3.0",
+        "@skoup/analytics": "^0.4.0",
       },
       "devDependencies": {
         "@testing-library/react": "^16.3.0",
@@ -84,7 +84,7 @@
       "name": "@skoup/analytics-svelte",
       "version": "0.4.0",
       "dependencies": {
-        "@skoup/analytics": "^0.3.0",
+        "@skoup/analytics": "^0.4.0",
       },
       "devDependencies": {
         "jsdom": "^26.1.0",
@@ -99,7 +99,7 @@
       "name": "@skoup/analytics-vue",
       "version": "0.4.0",
       "dependencies": {
-        "@skoup/analytics": "^0.3.0",
+        "@skoup/analytics": "^0.4.0",
       },
       "devDependencies": {
         "@vue/test-utils": "^2.4.6",

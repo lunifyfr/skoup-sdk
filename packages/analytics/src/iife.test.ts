@@ -41,11 +41,34 @@ describe('the tag', () => {
       'signup',
       'purchase',
     ])
-    // consent=wait: no cookie until granted
+    // consent=wait: measured without a cookie, nor the order of the purchase
+    expect(body.c).toBe(0)
+    expect(body.e[2]).not.toHaveProperty('o')
     expect(document.cookie).not.toContain('skp_vid')
+    expect(sessionStorage.length).toBe(0)
     window.skoup?.('consent', 'granted')
     expect(document.cookie).toContain('skp_vid=' + body.v)
     expect(window.skoup?.attribution()?.visitor_id).toBe(body.v)
+  })
+
+  it('sends nothing with data-consent="off" until the consent is lifted', async () => {
+    const script = document.createElement('script')
+    script.setAttribute('data-site', 'site_tag')
+    script.setAttribute('data-consent', 'off')
+    script.setAttribute('data-debug', '1')
+    Object.defineProperty(document, 'currentScript', { value: script, configurable: true })
+
+    await import('./iife')
+    window.skoup?.('event', 'signup')
+    vi.advanceTimersByTime(1000)
+    expect(window.fetch).not.toHaveBeenCalled()
+
+    window.skoup?.('consent', 'wait')
+    window.skoup?.('event', 'signup')
+    window.skoup?.('consent', 'off')
+    vi.advanceTimersByTime(1000)
+    expect(window.fetch).not.toHaveBeenCalled()
+    expect(document.cookie).not.toContain('skp_vid')
   })
 
   it('is inert without a site key', async () => {

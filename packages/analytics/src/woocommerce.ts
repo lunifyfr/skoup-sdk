@@ -27,16 +27,20 @@ export function wooCommerceOrderId(attribute: string | null | undefined, w: Wind
 /**
  * Sends `purchase` with `order_id` through `send` when this page is a
  * WooCommerce "Order received" page not reported yet in this tab
- * (`sessionStorage` key `skoup_wc_order_{id}`). Never throws.
+ * (`sessionStorage` key `skoup_wc_order_{id}`). Without `storage` (no
+ * consent to the cookie), nothing is stored: sent on every load of the
+ * page. Never throws.
  */
 export function trackWooCommercePurchase(
   attribute: string | null | undefined,
   send: (orderId: string) => void,
   w: Window,
+  storage = true,
 ): void {
   try {
     const id = wooCommerceOrderId(attribute, w)
     if (!id) return
+    if (!storage) return send(id)
     const key = STORAGE_PREFIX + id
     try {
       if (w.sessionStorage.getItem(key)) return

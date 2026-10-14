@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /** The tag booted on a WooCommerce page, as `<script data-site [data-skoup-order]>` would. */
-async function boot(url: string, order?: string): Promise<string[]> {
+async function boot(url: string, order?: string, consent?: string): Promise<string[]> {
   window.history.replaceState(null, '', url)
   const script = document.createElement('script')
   script.setAttribute('data-site', 'site_shop')
   script.setAttribute('data-endpoint', 'https://collector.test/t')
   if (order !== undefined) script.setAttribute('data-skoup-order', order)
+  if (consent !== undefined) script.setAttribute('data-consent', consent)
   Object.defineProperty(document, 'currentScript', { value: script, configurable: true })
   delete window.skoup
   vi.resetModules()
@@ -17,7 +18,7 @@ async function boot(url: string, order?: string): Promise<string[]> {
     .mocked(window.fetch)
     .mock.calls.flatMap(([, init]) => JSON.parse((init as { body: string }).body).e)
     .filter((e: { n?: string }) => e.n === 'purchase')
-    .map((e: { o: string }) => e.o)
+    .map((e: { o?: string }) => e.o ?? '(no order)')
 }
 
 describe('the WooCommerce purchase', () => {
@@ -64,6 +65,15 @@ describe('the WooCommerce purchase', () => {
     })
     expect(await boot('/merci/', '1047')).toEqual(['1047'])
     spy.mockRestore()
+  })
+
+  it('without the cookie: the purchase without its order, nothing in sessionStorage', async () => {
+    expect(await boot('/merci/', '1048', 'wait')).toEqual(['(no order)'])
+    expect(sessionStorage.length).toBe(0)
+  })
+
+  it('sends nothing when the visitor objects', async () => {
+    expect(await boot('/merci/', '1049', 'off')).toEqual([])
   })
 
   it('ignores an invalid id', async () => {

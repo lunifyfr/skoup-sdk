@@ -16,4 +16,4 @@ const skoup = useSkoup()
 <button @click="skoup.event('signup', { plan: 'growth' })">Sign up</button>
 ```
 
-With `router`, a page view follows each navigation. `skoup.consent('granted')` when the banner gets the consent, `skoup.attribution()` for Stripe metadata. Nuxt: `@skoup/analytics-nuxt`.
+With `router`, a page view follows each navigation. `consent: 'wait'` measures without a cookie until `skoup.consent('granted')`; `'denied'` deletes it and measures without one, `'off'` sends nothing; `skoup.attribution()` for Stripe metadata. Nuxt: `@skoup/analytics-nuxt`.

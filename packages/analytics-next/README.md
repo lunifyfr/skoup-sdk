@@ -19,4 +19,4 @@ export default function RootLayout({ children }) {
 }
 ```
 
-Page views follow every navigation. Anywhere below: `const skoup = useSkoup()`, then `skoup.event('signup')`, `skoup.consent('granted')`, `skoup.attribution()`. Pages router: use `@skoup/analytics-react` with its provider in `_app`.
+`consent="wait"` measures without a cookie until `skoup.consent('granted')`; `'denied'` deletes it and measures without one, `'off'` sends nothing. Page views follow every navigation. Anywhere below: `const skoup = useSkoup()`, then `skoup.event('signup')`, `skoup.consent('granted')`, `skoup.attribution()`. Pages router: use `@skoup/analytics-react` with its provider in `_app`.

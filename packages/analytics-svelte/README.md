@@ -14,4 +14,4 @@
 </script>
 ```
 
-Anywhere: `getSkoup().event('signup', { plan: 'growth' })`, `getSkoup().consent('granted')`, `getSkoup().attribution()`. Plain Svelte without SvelteKit: `initSkoup({ site })` alone — page views follow `history.pushState`.
+Anywhere: `getSkoup().event('signup', { plan: 'growth' })`, `getSkoup().consent('granted')`, `getSkoup().attribution()`. `consent: 'wait'` measures without a cookie until `consent('granted')`; `'denied'` deletes it and measures without one, `'off'` sends nothing. Plain Svelte without SvelteKit: `initSkoup({ site })` alone — page views follow `history.pushState`.

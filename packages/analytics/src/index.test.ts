@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { COOKIE, cleanReferrer, cleanUrl, createSkoup, probeCookieDomain } from './index'
 
-type Sent = { s: string; v: string; d?: string; e: Array<Record<string, unknown>> }
+type Sent = { s: string; v: string; d?: string; c?: number; e: Array<Record<string, unknown>> }
 
 /** The hits sent through fetch (no sendBeacon in jsdom: the fallback carries a string body). */
 function sentHits(sender: ReturnType<typeof vi.fn>): Sent[] {
@@ -47,11 +47,13 @@ describe('createSkoup', () => {
     window.fetch = beacon as unknown as typeof fetch
     window.history.replaceState({}, '', '/products/strade-7?utm_source=chatgpt.com&fbclid=secret')
     document.cookie = `${COOKIE}=; Max-Age=0; Path=/`
+    document.cookie = `${COOKIE}=; Max-Age=0; Path=/; Domain=nordvelo.fr`
     sessionStorage.clear()
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it('sends the first page view, batched, with a random visitor cookie', () => {
@@ -78,14 +80,144 @@ describe('createSkoup', () => {
     skoup.destroy()
   })
 
-  it('holds the cookie back until consent is granted', () => {
-    const skoup = createSkoup({ site: 'site_test', debug: true, consent: 'wait' })
-    vi.advanceTimersByTime(1000)
-    expect(document.cookie).not.toContain(COOKIE)
+  describe('without a cookie (wait / denied)', () => {
+    /** Every write to `document.cookie`, the probe included. */
+    let writes: string[]
+    let restoreCookie: () => void
 
-    skoup.consent('granted')
-    expect(document.cookie).toContain(`${COOKIE}=${sentHits(beacon)[0].v}`)
-    skoup.destroy()
+    beforeEach(() => {
+      writes = []
+      const descriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')!
+      Object.defineProperty(document, 'cookie', {
+        configurable: true,
+        get: () => descriptor.get!.call(document),
+        set: (value: string) => {
+          writes.push(value)
+          descriptor.set!.call(document, value)
+        },
+      })
+      restoreCookie = () => delete (document as unknown as { cookie?: string }).cookie
+    })
+
+    afterEach(() => restoreCookie())
+
+    it('stores nothing on the device and keeps one in-memory id for the page', () => {
+      const getItem = vi.spyOn(Storage.prototype, 'getItem')
+      const skoup = createSkoup({ site: 'site_test', debug: true, consent: 'wait' })
+      window.history.pushState({}, '', '/pricing')
+      skoup.event('purchase', null, { value: 49, currency: 'EUR', order_id: '1042' })
+      vi.advanceTimersByTime(1000)
+
+      const [hit] = sentHits(beacon)
+      expect(hit.c).toBe(0)
+      expect(hit.d).toBeUndefined()
+      expect(hit.v).toMatch(/^v1\.[0-9a-f]{32}$/)
+      // Two pages of the same load, one visit.
+      expect(hit.e.filter((e) => e.t === 'pageview')).toHaveLength(2)
+      // The amount stays, never the order: no join without consent.
+      expect(hit.e[2]).toMatchObject({ t: 'event', n: 'purchase', val: 49, cur: 'EUR' })
+      expect(hit.e[2]).not.toHaveProperty('o')
+
+      window.history.pushState({}, '', '/checkout')
+      vi.advanceTimersByTime(1000)
+      expect(sentHits(beacon)[1].v).toBe(hit.v)
+
+      expect(writes).toEqual([])
+      expect(document.cookie).toBe('')
+      expect(getItem).not.toHaveBeenCalled()
+      expect(sessionStorage.length).toBe(0)
+      expect(skoup.attribution()).toMatchObject({ visitor_id: hit.v, utm_source: 'chatgpt.com' })
+      skoup.destroy()
+    })
+
+    it('switches to the cookie on consent, keeping the visit under way', () => {
+      const skoup = createSkoup({ site: 'site_test', debug: true, consent: 'wait' })
+      vi.advanceTimersByTime(1000)
+      const before = sentHits(beacon)[0]
+      expect(before.c).toBe(0)
+
+      skoup.event('purchase', null, { value: 49, currency: 'EUR', order_id: '1042' })
+      skoup.consent('granted')
+      expect(document.cookie).toContain(`${COOKIE}=${before.v}`)
+      expect(JSON.parse(sessionStorage.getItem('skoup_attribution')!).visitor_id).toBe(before.v)
+      vi.advanceTimersByTime(1000)
+
+      // Queued before the consent, sent after it: with the cookie and the order.
+      const after = sentHits(beacon)[1]
+      expect(after.v).toBe(before.v)
+      expect(after.c).toBeUndefined()
+      expect(after.d).toBe('nordvelo.fr')
+      expect(after.e[0]).toMatchObject({ n: 'purchase', o: '1042' })
+      skoup.destroy()
+    })
+
+    it('adopts the cookie of an earlier visit on consent', () => {
+      const earlier = 'v1.' + 'a'.repeat(32)
+      document.cookie = `${COOKIE}=${earlier}; Path=/`
+      const skoup = createSkoup({ site: 'site_test', debug: true, consent: 'wait' })
+      expect(skoup.attribution()?.visitor_id).not.toBe(earlier)
+
+      skoup.consent('granted')
+      vi.advanceTimersByTime(1000)
+      expect(sentHits(beacon)[0].v).toBe(earlier)
+      expect(skoup.attribution()?.visitor_id).toBe(earlier)
+      skoup.destroy()
+    })
+
+    it('deletes the cookie on denied and measures without it again', () => {
+      const skoup = createSkoup({ site: 'site_test', debug: true })
+      vi.advanceTimersByTime(1000)
+      const granted = sentHits(beacon)[0]
+      expect(document.cookie).toContain(COOKIE)
+
+      skoup.consent('denied')
+      expect(document.cookie).not.toContain(COOKIE)
+      expect(sessionStorage.getItem('skoup_attribution')).toBeNull()
+      skoup.event('signup')
+      vi.advanceTimersByTime(1000)
+
+      const denied = sentHits(beacon)[1]
+      expect(denied.c).toBe(0)
+      expect(denied.d).toBeUndefined()
+      // Never the cookie's id once refused.
+      expect(denied.v).not.toBe(granted.v)
+      expect(document.cookie).not.toContain(COOKIE)
+      skoup.destroy()
+    })
+  })
+
+  describe('off (the visitor objects)', () => {
+    it('sends nothing, drops the queue and the cookie, until lifted', () => {
+      const skoup = createSkoup({ site: 'site_test', debug: true })
+      skoup.event('signup')
+      expect(document.cookie).toContain(COOKIE)
+
+      skoup.consent('off')
+      skoup.event('demo')
+      window.history.pushState({}, '', '/pricing')
+      vi.advanceTimersByTime(1000)
+      expect(beacon).not.toHaveBeenCalled()
+      expect(document.cookie).not.toContain(COOKIE)
+      expect(sessionStorage.length).toBe(0)
+      expect(skoup.attribution()).toBeNull()
+
+      skoup.consent('wait')
+      skoup.event('demo')
+      vi.advanceTimersByTime(1000)
+      const [hit] = sentHits(beacon)
+      expect(hit.c).toBe(0)
+      expect(hit.e.map((e) => e.n)).toEqual(['demo'])
+      skoup.destroy()
+    })
+
+    it('sends nothing from the start', () => {
+      const skoup = createSkoup({ site: 'site_test', debug: true, consent: 'off' })
+      skoup.event('signup')
+      vi.advanceTimersByTime(1000)
+      expect(beacon).not.toHaveBeenCalled()
+      expect(document.cookie).toBe('')
+      skoup.destroy()
+    })
   })
 
   it('reports a route change as a page and a purchase with its order', () => {

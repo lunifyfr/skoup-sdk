@@ -10,4 +10,4 @@ export default defineNuxtConfig({
 })
 ```
 
-Page views follow each navigation, on the client only. In a component: `import { useSkoup } from '@skoup/analytics-vue'`, then `skoup.event('signup')`, `skoup.consent('granted')`, `skoup.attribution()`.
+`consent: 'wait'` measures without a cookie until `skoup.consent('granted')`; `'denied'` deletes it and measures without one, `'off'` sends nothing. Page views follow each navigation, on the client only. In a component: `import { useSkoup } from '@skoup/analytics-vue'`, then `skoup.event('signup')`, `skoup.consent('granted')`, `skoup.attribution()`.

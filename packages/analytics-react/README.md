@@ -5,7 +5,7 @@
 ```tsx
 import { SkoupProvider, useSkoup } from '@skoup/analytics-react'
 
-// once, around the app — after your visitors' consent, or with consent="wait"
+// once, around the app — consent="wait" measures without a cookie until consent('granted')
 ;<SkoupProvider site="site_…" consent="wait">
   <App />
 </SkoupProvider>
@@ -16,4 +16,4 @@ function SignupButton() {
 }
 ```
 
-Page views follow `history.pushState` (React Router). For a router the provider cannot observe, give it `autoPageview={false} trackHistory={false}` and call `useSkoupPageview(location.pathname + location.search)` where the route is known. When the banner gets the consent: `skoup.consent('granted')`.
+Page views follow `history.pushState` (React Router). For a router the provider cannot observe, give it `autoPageview={false} trackHistory={false}` and call `useSkoupPageview(location.pathname + location.search)` where the route is known. When the banner gets the consent: `skoup.consent('granted')` (the cookie from then on); refused: `skoup.consent('denied')` (measured without it); the visitor objects: `skoup.consent('off')` (nothing sent).
