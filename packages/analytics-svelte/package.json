@@ -1,6 +1,6 @@
 {
   "name": "@skoup/analytics-svelte",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Skoup Analytics for Svelte and SvelteKit — one call, page views on navigation.",
   "license": "MIT",
   "repository": {
@@ -38,7 +38,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@skoup/analytics": "^1.1.0"
+    "@skoup/analytics": "^1.1.1"
   },
   "peerDependencies": {
     "svelte": ">=4"
