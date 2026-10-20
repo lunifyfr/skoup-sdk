@@ -47,8 +47,10 @@ export function useSkoupPageview(path: string | null | undefined): void {
 
   useEffect(() => {
     if (path == null || path === last.current) return
+    // The first page keeps `document.referrer` (where the visit came from); the next ones are internal.
+    const first = last.current === undefined
     last.current = path
-    skoup.pageview(last.current === undefined ? undefined : null)
+    skoup.pageview(first ? undefined : null)
   }, [path, skoup])
 }
 

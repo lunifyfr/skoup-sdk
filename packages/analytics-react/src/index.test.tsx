@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SkoupProvider, useSkoup, useSkoupEvent, useSkoupPageview } from './index'
 
-type Sent = { e: Array<{ t: string; n?: string; u?: string }> }
+type Sent = { e: Array<{ t: string; n?: string; u?: string; r?: string }> }
 const sent = (): Sent[] =>
   vi.mocked(window.fetch).mock.calls.map(([, init]) => JSON.parse((init as { body: string }).body))
 
@@ -14,6 +14,7 @@ beforeEach(() => {
     Promise.resolve(new Response(null, { status: 204 })),
   ) as unknown as typeof fetch
   window.history.replaceState({}, '', '/')
+  Object.defineProperty(document, 'referrer', { value: '', configurable: true })
 })
 
 describe('SkoupProvider', () => {
@@ -43,6 +44,10 @@ describe('SkoupProvider', () => {
   })
 
   it('reports pages through useSkoupPageview when the router is not observable', () => {
+    Object.defineProperty(document, 'referrer', {
+      value: 'https://chatgpt.com/',
+      configurable: true,
+    })
     function Routed() {
       const [path, setPath] = useState('/a')
       useSkoupPageview(path)
@@ -56,7 +61,9 @@ describe('SkoupProvider', () => {
     act(() => screen.getByText('go').click())
     act(() => vi.advanceTimersByTime(1000))
 
-    expect(sent()[0].e.filter((e) => e.t === 'pageview')).toHaveLength(2)
+    // The first page keeps where the visit came from, the next one is internal.
+    const pages = sent()[0].e.filter((e) => e.t === 'pageview')
+    expect(pages.map((e) => e.r)).toEqual(['https://chatgpt.com/', undefined])
   })
 
   it('passes the consent through: without a cookie, then with it', () => {
