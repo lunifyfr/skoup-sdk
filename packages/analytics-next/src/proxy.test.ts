@@ -48,6 +48,19 @@ describe('reportAiAgents', () => {
     })
   })
 
+  it('sends the status the proxy answers itself, as st', async () => {
+    const fetch = ok()
+    const e = event()
+    reportAiAgents(request({ 'user-agent': CHATGPT, 'x-real-ip': '20.171.207.1' }), e, {
+      ...options,
+      fetch,
+      status: 410,
+    })
+    await e.waitUntil.mock.calls[0][0]
+
+    expect(JSON.parse(fetch.mock.calls[0][1].body as string).e[0].st).toBe(410)
+  })
+
   it('does not hold the response: the report runs after the proxy returns', () => {
     let settle: (response: Response) => void = () => {}
     const fetch = vi.fn(() => new Promise<Response>((resolve) => (settle = resolve)))

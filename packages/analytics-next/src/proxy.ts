@@ -17,6 +17,13 @@ export interface ReportAiAgentsOptions {
   fetch?: FetchLike
   /** Given up after this many ms (default 2000). */
   timeout?: number
+  /**
+   * The HTTP status the proxy answers, when it decides the response itself
+   * (a redirect, a 410 for a page you removed). Omitted, Skoup checks the
+   * page's status on its own once a day: a proxy runs before the page
+   * renders and cannot know a 404 of the app.
+   */
+  status?: number
 }
 
 /** What the helper reads of the request — a `NextRequest` or any `Request`. */
@@ -70,6 +77,7 @@ export function reportAiAgents(
         userAgent,
         ip: clientIp(request.headers),
         url: request.url,
+        status: options.status,
       }),
     )
     return true
